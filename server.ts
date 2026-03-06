@@ -287,7 +287,19 @@ async function startServer() {
       res.sendFile(path.join(process.cwd(), "dist", "index.html"));
     });
   }
+import path from 'path'; // Убедитесь, что path импортирован сверху
 
+// ... здесь ваши роуты (например, app.get('/api/products', ...)) ...
+
+// 1. Раздаем скомпилированные файлы React (папку dist)
+app.use(express.static(path.resolve('dist')));
+
+// 2. Все остальные запросы (например, прямая ссылка на /admin) перенаправляем в React
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve('dist', 'index.html'));
+});
+
+// app.listen(PORT, () => console.log('Server is running...'));
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
