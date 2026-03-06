@@ -85,7 +85,12 @@ async function startServer() {
 
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
+// Говорим Express доверять HTTPS-соединению от Render
+app.set('trust proxy', 1);
 
+app.use(session({
+  // ... тут ваши настройки сессии
+}));
   // Session configuration
   app.use(session({
     secret: process.env.SESSION_SECRET || "nostalgie-secret-key",
