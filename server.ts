@@ -4,6 +4,8 @@ import Database from "better-sqlite3";
 import path from "path";
 import dotenv from "dotenv";
 import session from "express-session";
+import path from 'path';
+
 
 dotenv.config();
 
@@ -287,10 +289,6 @@ async function startServer() {
       res.sendFile(path.join(process.cwd(), "dist", "index.html"));
     });
   }
-import path from 'path'; // Убедитесь, что path импортирован сверху
-
-// ... здесь ваши роуты (например, app.get('/api/products', ...)) ...
-
 // 1. Раздаем скомпилированные файлы React (папку dist)
 app.use(express.static(path.resolve('dist')));
 
