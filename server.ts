@@ -4,8 +4,6 @@ import Database from "better-sqlite3";
 import path from "path";
 import dotenv from "dotenv";
 import session from "express-session";
-import path from 'path';
-
 
 dotenv.config();
 
@@ -61,7 +59,7 @@ if (productCount.count === 0) {
   insertProduct.run("Nostalgie Gift Bag", 45, "https://ais-pre-kmoknsmjgxv3ytsswjjvfl-265915447700.europe-west2.run.app/input_file_3.png", "A charming floral gift in our branded eco-friendly bag.", "Gifts");
 }
 
-// Force update settings to Nostalgie branding if they are still set to the old defaults or empty
+// Force update settings to Nostalgie branding
 const currentShopName = db.prepare("SELECT value FROM settings WHERE key = 'shop_name'").get() as { value: string } | undefined;
 if (!currentShopName || currentShopName.value === 'Flora & Bloom') {
   const upsertSetting = db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)");
@@ -81,24 +79,24 @@ declare module 'express-session' {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  
+  // ВАЖНО: Render использует случайные порты. Мы должны использовать process.env.PORT, если он есть
+  const PORT = process.env.PORT || 3000;
 
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
-// Говорим Express доверять HTTPS-соединению от Render
-app.set('trust proxy', 1);
 
-app.use(session({
-  // ... тут ваши настройки сессии
-}));
-  // Session configuration
+  // --- ИСПРАВЛЕНИЕ СЕССИЙ ДЛЯ RENDER (HTTPS) ---
+  app.set('trust proxy', 1);
+
   app.use(session({
     secret: process.env.SESSION_SECRET || "nostalgie-secret-key",
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV !== "development", // true на сервере, false локально
       httpOnly: true,
+      sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
   }));
@@ -174,7 +172,6 @@ app.use(session({
 
   app.post("/api/orders/archive-old", requireAdmin, (req, res) => {
     try {
-      // Archive orders older than 7 days
       const result = db.prepare("UPDATE orders SET is_archived = 1 WHERE created_at < datetime('now', '-7 days') AND is_archived = 0").run();
       res.json({ success: true, count: result.changes });
     } catch (error) {
@@ -205,27 +202,24 @@ app.use(session({
 
   app.delete("/api/products/:id", requireAdmin, (req, res) => {
     const { id } = req.params;
-    console.log(`Attempting to delete product with ID: ${id}`);
     try {
       const result = db.prepare("DELETE FROM products WHERE id = ?").run(Number(id));
-      console.log(`Delete result: ${JSON.stringify(result)}`);
       if (result.changes > 0) {
         res.json({ success: true });
       } else {
-        console.warn(`Product with ID ${id} not found for deletion.`);
         res.status(404).json({ error: "Product not found" });
       }
     } catch (error) {
-      console.error(`Error deleting product ${id}:`, error);
       res.status(500).json({ error: "Failed to delete product" });
     }
   });
 
-  // --- Settings API ---
+  // --- Settings API (Auth) ---
   app.post("/api/admin/login", (req, res) => {
     const { password } = req.body;
     try {
       const dbPasswordRow = db.prepare("SELECT value FROM settings WHERE key = 'admin_password'").get() as { value: string } | undefined;
+      // ВАЖНЫЙ МОМЕНТ: пароль по умолчанию 'admin123'
       const adminPassword = dbPasswordRow?.value || process.env.ADMIN_PASSWORD || "admin123";
       
       if (password === adminPassword) {
@@ -266,7 +260,7 @@ app.use(session({
   });
 
   app.post("/api/settings", requireAdmin, (req, res) => {
-    const { settings } = req.body; // Expecting { key: value }
+    const { settings } = req.body;
     try {
       const upsert = db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)");
       const transaction = db.transaction((data) => {
@@ -281,30 +275,16 @@ app.use(session({
     }
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-  } else {
-    app.use(express.static(path.join(process.cwd(), "dist")));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(process.cwd(), "dist", "index.html"));
-    });
-  }
-// 1. Раздаем скомпилированные файлы React (папку dist)
-app.use(express.static(path.resolve('dist')));
+  // --- Выдача статических файлов (Фронтенд) ---
+  app.use(express.static(path.resolve('dist')));
 
-// 2. Все остальные запросы (например, прямая ссылка на /admin) перенаправляем в React
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve('dist', 'index.html'));
-});
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve('dist', 'index.html'));
+  });
 
-// app.listen(PORT, () => console.log('Server is running...'));
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  // --- Запуск сервера ---
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
   });
 }
 
