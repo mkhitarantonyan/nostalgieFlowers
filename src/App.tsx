@@ -678,30 +678,51 @@ export default function App() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="group"
                   >
-                    <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] mb-4 shadow-sm group-hover:shadow-xl transition-all duration-500">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] mb-4 shadow-sm md:group-hover:shadow-xl transition-all duration-500">
                       <img 
                         src={product.image} 
                         alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 cursor-pointer"
+                        className="w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-110 cursor-pointer"
                         referrerPolicy="no-referrer"
                         onClick={() => setSelectedProduct(product)}
                       />
-                      <div className="absolute inset-0 bg-[#1B3022]/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                      
+                      {/* Оверлей скрыт на телефонах (hidden md:flex) */}
+                      <div className="absolute inset-0 bg-[#1B3022]/60 opacity-0 md:group-hover:opacity-100 transition-opacity hidden md:flex items-center justify-center pointer-events-none">
                         <div className="flex flex-col gap-2 pointer-events-auto">
                           <button 
-                            onClick={() => addToCart(product)}
-                            className="bg-[#EAB308] text-[#1B3022] px-6 py-2.5 rounded-full font-bold uppercase tracking-widest text-[10px] transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 hover:bg-white"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              addToCart(product);
+                              showToast('Added to cart');
+                            }}
+                            className="bg-[#EAB308] text-[#1B3022] px-6 py-2.5 rounded-full font-bold uppercase tracking-widest text-[10px] transform translate-y-4 md:group-hover:translate-y-0 transition-all duration-500 hover:bg-white"
                           >
                             Add to Cart
                           </button>
                           <button 
-                            onClick={() => setSelectedProduct(product)}
-                            className="bg-white/20 backdrop-blur-md text-white border border-white/30 px-6 py-2.5 rounded-full font-bold uppercase tracking-widest text-[10px] transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-75 hover:bg-white hover:text-[#1B3022]"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedProduct(product);
+                            }}
+                            className="bg-white/20 backdrop-blur-md text-white border border-white/30 px-6 py-2.5 rounded-full font-bold uppercase tracking-widest text-[10px] transform translate-y-4 md:group-hover:translate-y-0 transition-all duration-500 delay-75 hover:bg-white hover:text-[#1B3022]"
                           >
                             Quick View
                           </button>
                         </div>
                       </div>
+
+                      {/* Круглая кнопка корзины ТОЛЬКО для телефонов (md:hidden) */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart(product);
+                          showToast('Added to cart');
+                        }}
+                        className="md:hidden absolute bottom-4 right-4 w-10 h-10 bg-[#EAB308] text-[#1B3022] rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+                      >
+                        <ShoppingCart className="w-5 h-5" />
+                      </button>
                     </div>
                     <div className="px-1">
                       <h3 className="text-lg font-serif text-white mb-0.5 truncate">{product.name}</h3>
