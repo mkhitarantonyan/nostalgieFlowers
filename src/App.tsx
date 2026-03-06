@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import logo from './assets/logo.png'
 import { 
   ShoppingCart, 
-  Menu, 
+  Menu,
+  Instagram,
+  Facebook,
+  Mail,
   X, 
   Phone, 
   MapPin, 
@@ -24,21 +27,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Product, CartItem, Order, Settings } from './types';
-
-const CustomFlowerIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
-  <svg viewBox="0 0 100 100" fill="currentColor" className={className}>
-    <path d="M50 50 Q60 20 50 10 Q40 20 50 50" />
-    <path d="M50 50 Q80 40 90 50 Q80 60 50 50" />
-    <path d="M50 50 Q60 80 50 90 Q40 80 50 50" />
-    <path d="M50 50 Q20 40 10 50 Q20 60 50 50" />
-    <path d="M50 50 Q75 25 85 35 Q75 45 50 50" />
-    <path d="M50 50 Q75 75 65 85 Q55 75 50 50" />
-    <path d="M50 50 Q25 75 15 65 Q25 55 50 50" />
-    <path d="M50 50 Q25 25 35 15 Q45 25 50 50" />
-    <circle cx="50" cy="50" r="6" className="fill-[#1B3022]" />
-    <circle cx="50" cy="50" r="3" />
-  </svg>
-);
 
 const Toast = ({ message, type, onClose }: { message: string, type: 'success' | 'error', onClose: () => void }) => (
   <motion.div 
@@ -1105,11 +1093,15 @@ export default function App() {
             </ul>
           </div>
           <div>
-            <h4 className="font-serif text-2xl mb-8">Newsletter</h4>
-            <p className="text-white/60 font-light mb-6">Join our exclusive circle for floral inspiration and previews.</p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <input type="email" placeholder="Email address" className="bg-white/5 border border-white/10 rounded-full px-6 py-3 flex-grow text-sm focus:outline-none focus:border-white/30 transition-all w-full" />
-              <button className="bg-white text-[#1B3022] px-8 py-3 rounded-full text-sm font-bold uppercase tracking-widest w-full sm:w-auto whitespace-nowrap">Join</button>
+            <h4 className="font-serif text-2xl mb-8">Follow Us</h4>
+            <p className="text-white/60 font-light mb-6">
+              Follow Nostalgie Flowers on social media for new collections and inspiration.
+            </p>
+            <div className="flex gap-4">
+              <a href="https://www.instagram.com/nostalgieflowers/" className="w-12 h-12 flex items-center justify-center bg-white/5 border border-white/10 rounded-full hover:bg-[#EAB308] hover:text-[#1B3022] transition-all"><Instagram className="w-5 h-5" /></a>
+              <a href="#" className="w-12 h-12 flex items-center justify-center bg-white/5 border border-white/10 rounded-full hover:bg-[#EAB308] hover:text-[#1B3022] transition-all"><Facebook className="w-5 h-5" /></a>
+              <a href="#" className="w-12 h-12 flex items-center justify-center bg-white/5 border border-white/10 rounded-full hover:bg-[#EAB308] hover:text-[#1B3022] transition-all text-xs font-bold">Yelp</a>
+              <a href="https://mail.google.com/mail/u/0/#inbox?compose=GTvVlcSBmXGGVLrpPkrDZjlSLCBZdSqQWKQXWbVXlftqqClPnJCZcMvLBhZhGFjmtZJkQMXXbpksx" target="_blank" rel="noreferrer" className="w-12 h-12 flex items-center justify-center bg-white/5 border border-white/10 rounded-full hover:bg-[#EAB308] hover:text-[#1B3022] transition-all"><Mail className="w-5 h-5" /></a>
             </div>
           </div>
         </div>
